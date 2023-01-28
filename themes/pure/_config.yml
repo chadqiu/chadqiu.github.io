@@ -119,24 +119,24 @@ repository:
 # Gitment
 # Introduction: https://imsun.net/posts/gitment-introduction/
 comment:
-  type: valine  # 启用哪种评论系统
+  type: livere  # 启用哪种评论系统
   disqus:  # enter disqus shortname here
   youyan: 
     uid: 1783844 # enter youyan uid 
   livere:
-    uid: # enter youyan uid 
+    uid: MTAyMC81Nzk4OC8zNDQ1MQ== # enter livere uid
   gitment:
-    githubID: 
-    repo: 
-    ClientID: 
-    ClientSecret: 
+    # githubID: https://chadqiu.github.io/
+    repo: https://github.com/chadqiu/chadqiu.github.io.git
+    ClientID: 23a42fa067af5daa7288
+    ClientSecret: ad6e2f0fcf62ac8b2fd839e7b9e5ae41e9a490ab
     lazy: false
   gitalk: # gitalk. https://gitalk.github.io/
-    owner:  #必须. GitHub repository 所有者，可以是个人或者组织。
-    admin:  #必须. GitHub repository 的所有者和合作者 (对这个 repository 有写权限的用户)。
-    repo:  #必须. GitHub repository.
-    ClientID:  #必须. GitHub Application Client ID.
-    ClientSecret:  #必须. GitHub Application Client Secret.
+    owner:  chadqiu #必须. GitHub repository 所有者，可以是个人或者组织。
+    admin:  chadqiu #必须. GitHub repository 的所有者和合作者 (对这个 repository 有写权限的用户)。
+    repo:  https://github.com/chadqiu/chadqiu.github.io.git #必须. GitHub repository.
+    ClientID:  23a42fa067af5daa7288 #必须. GitHub Application Client ID.
+    ClientSecret:  ad6e2f0fcf62ac8b2fd839e7b9e5ae41e9a490ab #必须. GitHub Application Client Secret.
     enableHotKey: true
     language: zh-CN
     
