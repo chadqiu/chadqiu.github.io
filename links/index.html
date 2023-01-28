@@ -40,8 +40,6 @@
 
   
   
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitment@0.0.3/style/default.min.css">
-  
   
   
 <meta name="generator" content="Hexo 6.3.0"></head>
@@ -365,7 +363,9 @@
   
   <section id="comments">
   	
-
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81Nzk4OC8zNDQ1MQ==">
+        <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+      </div>    
     
   </section>
 
@@ -430,23 +430,19 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
    
     
-<script src="//cdn.jsdelivr.net/npm/gitment@0.0.3/dist/gitment.browser.min.js"></script>
-<script>
-var gitment = new Gitment({
-  // id默认为当前页面url，如果url后带参数或锚点，gitment要重新初始化
-  // https://github.com/imsun/gitment/issues/55
-  // 解决方案：id:window.location.pathname,或者将id设置为当前页面标题
-  id: '友情链接', 
-  owner: '', // 可以是你的GitHub用户名，也可以是github id
-  repo: 'https://github.com/chadqiu/chadqiu.github.io.git',
-  oauth: {
-    client_id: '23a42fa067af5daa7288',
-    client_secret: 'ad6e2f0fcf62ac8b2fd839e7b9e5ae41e9a490ab',
-  }
-})
-gitment.render('comments')
-</script>
+<script defer type="text/javascript">
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
 
+    if (typeof LivereTower === 'function') { return; }
+
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
 
 
 
