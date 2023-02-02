@@ -28,7 +28,7 @@
 <meta property="og:image" content="http://chadqiu.github.io/images/newcoder_data.png">
 <meta property="og:image" content="http://chadqiu.github.io/images/newcoder_f1.png">
 <meta property="article:published_time" content="2023-02-02T18:56:52.000Z">
-<meta property="article:modified_time" content="2023-02-02T20:53:37.935Z">
+<meta property="article:modified_time" content="2023-02-02T21:05:22.952Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="python">
@@ -238,7 +238,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">5</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -250,21 +250,6 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/8e4779966831.html" class="title">使用python调用openAI chatGPT的API</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2023-02-02T19:21:27.000Z" itemprop="datePublished">2023-02-03</time>
-              </p>
-            </div>
-          </li>
-          
           <li>
             
             <div class="item-inner">
@@ -321,6 +306,21 @@
               </p>
               <p class="item-date">
                 <time datetime="2023-01-27T08:43:42.000Z" itemprop="datePublished">2023-01-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a>
+              </p>
+              <p class="item-title">
+                <a href="/395c25595e33.html" class="title">爬虫入门</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-27T05:38:36.000Z" itemprop="datePublished">2023-01-27</time>
               </p>
             </div>
           </li>
@@ -401,6 +401,8 @@
 <h2 id="预测过滤"><a href="#预测过滤" class="headerlink" title="预测过滤"></a>预测过滤</h2><p>我们把爬回来的帖子中预测为招聘信息的帖子留下来，其他的过滤掉即可。爬虫程序一天执行一次，可以采用类似懒加载的方式加载模型，为了性能，需要分batch进行计算。预测代码如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">batch_generate</span>(<span class="params">texts, tokenizer, model, id2label = &#123;<span class="number">0</span>: <span class="string">&#x27;招聘信息&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;经验贴&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;求助贴&#x27;</span>&#125;, max_length = <span class="number">128</span></span>):</span><br><span class="line">    inputs = tokenizer( texts, return_tensors=<span class="string">&quot;pt&quot;</span>, max_length=<span class="number">128</span>, padding=<span class="literal">True</span>, truncation=<span class="literal">True</span>)</span><br><span class="line">    outputs = model(**inputs).logits.argmax(-<span class="number">1</span>).tolist()</span><br><span class="line">    <span class="keyword">return</span> [id2label[x] <span class="keyword">for</span> x <span class="keyword">in</span> outputs]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_predict</span>(<span class="params">text_list, model_name = <span class="string">&quot;roberta4h512&quot;</span>, batch_size = <span class="number">16</span></span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text_list: <span class="keyword">return</span> []</span><br><span class="line">    model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">    tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    result, start = [], <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span>(start &lt; <span class="built_in">len</span>(text_list)):</span><br><span class="line">        result.extend(batch_generate(text_list[start : start + batch_size], tokenizer, model))</span><br><span class="line">        start += batch_size</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
+<p>详情见：crawler_advanced.py</p>
+
       
     </div>
     <div class="article-footer">
@@ -456,10 +458,6 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/8e4779966831.html" title="使用python调用openAI chatGPT的API"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
     
     
     <li class="next">
