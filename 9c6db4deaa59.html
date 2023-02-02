@@ -17,26 +17,27 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>谷歌学术爬虫 | chadqiu&#39;s blog</title>
-  <meta name="description" content="一个针对谷歌学术(Google scholar)的爬虫，需要科学上网。支持根据关键词搜索相关的论文前N篇论文，获取论文的主要信息信息。 根据关键词搜索 可以指定：关键词、开始时间、结束时间、返回论文的数量（建议不超过200，否则容易被封），爬取的结果包括： [论文标题, 引用数, 发表时间及机构缩写, 论文链接]，见上图划线的部分结果会print出来，同时也会自动保存到一个excel文件 1234">
+  <title>如何从零开始构建一个网络讨论帖分类模型？ | chadqiu&#39;s blog</title>
+  <meta name="description" content="Motivation前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见牛客网爬虫，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。 数据准备但一般情况下要训练">
 <meta property="og:type" content="article">
-<meta property="og:title" content="谷歌学术爬虫">
-<meta property="og:url" content="http://chadqiu.github.io/083653212f47.html">
+<meta property="og:title" content="如何从零开始构建一个网络讨论帖分类模型？">
+<meta property="og:url" content="http://chadqiu.github.io/9c6db4deaa59.html">
 <meta property="og:site_name" content="chadqiu">
-<meta property="og:description" content="一个针对谷歌学术(Google scholar)的爬虫，需要科学上网。支持根据关键词搜索相关的论文前N篇论文，获取论文的主要信息信息。 根据关键词搜索 可以指定：关键词、开始时间、结束时间、返回论文的数量（建议不超过200，否则容易被封），爬取的结果包括： [论文标题, 引用数, 发表时间及机构缩写, 论文链接]，见上图划线的部分结果会print出来，同时也会自动保存到一个excel文件 1234">
+<meta property="og:description" content="Motivation前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见牛客网爬虫，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。 数据准备但一般情况下要训练">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/c916f42f39694b9eb19c634861784498.png">
-<meta property="og:image" content="http://chadqiu.github.io/images/paper%20list.png">
-<meta property="article:published_time" content="2023-01-27T09:27:35.000Z">
-<meta property="article:modified_time" content="2023-01-27T10:00:50.336Z">
+<meta property="og:image" content="http://chadqiu.github.io/images/newcoder_data.png">
+<meta property="og:image" content="http://chadqiu.github.io/images/newcoder_f1.png">
+<meta property="article:published_time" content="2023-02-02T18:56:52.000Z">
+<meta property="article:modified_time" content="2023-02-02T20:53:37.935Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="AI">
 <meta property="article:tag" content="python">
-<meta property="article:tag" content="爬虫">
-<meta property="article:tag" content="谷歌学术">
+<meta property="article:tag" content="NLP">
+<meta property="article:tag" content="huggingface">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://img-blog.csdnimg.cn/c916f42f39694b9eb19c634861784498.png">
+<meta name="twitter:image" content="http://chadqiu.github.io/images/newcoder_data.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://chadqiu.github.io/083653212f47.html">
+  <link rel="canonical" href="http://chadqiu.github.io/9c6db4deaa59.html">
   
     <link rel="alternate" href="/atom.xml" title="chadqiu" type="application/atom+xml">
   
@@ -335,16 +336,25 @@
 
   
   
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E8%AE%AD%E7%BB%83"><span class="toc-number">3.</span> <span class="toc-text">模型与训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E6%B5%8B%E8%BF%87%E6%BB%A4"><span class="toc-number">4.</span> <span class="toc-text">预测过滤</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
 <main class="main" role="main">
   <div class="content">
-  <article id="post-谷歌学术爬虫" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-如何从零开始构建一个网络讨论帖分类模型" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      谷歌学术爬虫
+      如何从零开始构建一个网络讨论帖分类模型？
     </h1>
   
 
@@ -352,38 +362,44 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/083653212f47.html" class="article-date">
-	  <time datetime="2023-01-27T09:27:35.000Z" itemprop="datePublished">2023-01-27</time>
+	<a href="/9c6db4deaa59.html" class="article-date">
+	  <time datetime="2023-02-02T18:56:52.000Z" itemprop="datePublished">2023-02-03</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a>
+    <a class="article-category-link" href="/categories/AI/">AI</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link-link" href="/tags/python/" rel="tag">python</a>, <a class="article-tag-link-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>, <a class="article-tag-link-link" href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" rel="tag">谷歌学术</a>
+	<a class="article-tag-link-link" href="/tags/AI/" rel="tag">AI</a>, <a class="article-tag-link-link" href="/tags/NLP/" rel="tag">NLP</a>, <a class="article-tag-link-link" href="/tags/huggingface/" rel="tag">huggingface</a>, <a class="article-tag-link-link" href="/tags/python/" rel="tag">python</a>
   </span>
 
 
         
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/083653212f47.html#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/9c6db4deaa59.html#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>一个针对谷歌学术(Google scholar)的爬虫，需要科学上网。<br>支持根据关键词搜索相关的论文前N篇论文，获取论文的主要信息信息。</p>
-<h2 id="根据关键词搜索"><a href="#根据关键词搜索" class="headerlink" title="根据关键词搜索"></a>根据关键词搜索</h2><p><img src="https://img-blog.csdnimg.cn/c916f42f39694b9eb19c634861784498.png" alt="网页截图"></p>
-<p>可以指定：关键词、开始时间、结束时间、返回论文的数量（建议不超过200，否则容易被封），爬取的结果包括： [论文标题, 引用数, 发表时间及机构缩写, 论文链接]，见上图划线的部分<br>结果会print出来，同时也会自动保存到一个excel文件</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> traceback</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line"></span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) &#x27;</span></span><br><span class="line">                             <span class="string">&#x27;Chrome/90.0.4430.93 Safari/537.36&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_paper_page</span>(<span class="params">url</span>):</span><br><span class="line">    req = urllib.request.Request(url=url, headers=headers)</span><br><span class="line">    res = urllib.request.urlopen(req, timeout=<span class="number">100</span>)</span><br><span class="line">    html=res.read().decode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    soup=BeautifulSoup(html)</span><br><span class="line">    data = [[div.select(<span class="string">&#x27;.gs_rt &gt; a&#x27;</span>)[<span class="number">0</span>].text, div.select(<span class="string">&#x27;.gs_fl &gt; a&#x27;</span>)[<span class="number">2</span>].string, re.search(<span class="string">&quot;- .*?\&lt;/div&gt;&quot;</span>, <span class="built_in">str</span>(div.select(<span class="string">&#x27;.gs_a&#x27;</span>)[<span class="number">0</span>])).group()[<span class="number">1</span>:-<span class="number">6</span>].replace(<span class="string">&quot;\xa0&quot;</span>, <span class="string">&quot;&quot;</span>), div.select(<span class="string">&#x27;.gs_rt &gt; a&#x27;</span>)[<span class="number">0</span>][<span class="string">&quot;href&quot;</span>]] <span class="keyword">for</span> div <span class="keyword">in</span> soup.select(<span class="string">&#x27;.gs_ri&#x27;</span>)]</span><br><span class="line">    data = [[x[<span class="number">0</span>], <span class="built_in">int</span>(x[<span class="number">1</span>][<span class="number">6</span>:]) <span class="keyword">if</span> x[<span class="number">1</span>] != <span class="literal">None</span> <span class="keyword">and</span> x[<span class="number">1</span>].startswith(<span class="string">&quot;被引用次数&quot;</span>) <span class="keyword">else</span> <span class="number">0</span>, x[<span class="number">2</span>], x[<span class="number">3</span>]] <span class="keyword">for</span> x <span class="keyword">in</span> data]</span><br><span class="line">    <span class="keyword">return</span> data</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_paper_list</span>(<span class="params">data, file_name</span>):</span><br><span class="line">    data = pd.DataFrame(data, columns=[<span class="string">&#x27;paper title&#x27;</span>, <span class="string">&#x27;reference&#x27;</span>, <span class="string">&#x27;publish info&#x27;</span>, <span class="string">&#x27;url&#x27;</span>])</span><br><span class="line">    writer = pd.ExcelWriter(file_name)</span><br><span class="line">    data.to_excel(writer, index=<span class="literal">False</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>, sheet_name=<span class="string">&#x27;Sheet1&#x27;</span>)</span><br><span class="line">    writer.save()</span><br><span class="line">    writer.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_paper_list_by_keywork</span>(<span class="params">keyword, start_year = <span class="literal">None</span>, end_year = <span class="literal">None</span>, max_capacity = <span class="number">100</span>, debug_mode = <span class="literal">False</span>, save_file = <span class="string">&quot;paper_list.xlsx&quot;</span>, retry_times = <span class="number">3</span></span>):</span><br><span class="line">    keyword = re.sub(<span class="string">&quot; +&quot;</span>, <span class="string">&quot;+&quot;</span>, keyword.strip())</span><br><span class="line">    url_base = <span class="string">&#x27;https://scholar.google.com/scholar?hl=zh-CN&amp;as_sdt=0%2C5&#x27;</span></span><br><span class="line"></span><br><span class="line">    url_base = url_base + <span class="string">&#x27;&amp;q=&#x27;</span> + keyword</span><br><span class="line">    <span class="keyword">if</span> start_year != <span class="literal">None</span>:</span><br><span class="line">        url_base += <span class="string">&quot;&amp;as_ylo=&quot;</span> + <span class="built_in">str</span>(start_year)</span><br><span class="line">    <span class="keyword">if</span> end_year != <span class="literal">None</span>:</span><br><span class="line">        url_base += <span class="string">&quot;&amp;as_yhi=&quot;</span> + <span class="built_in">str</span>(end_year)</span><br><span class="line"></span><br><span class="line">    start = <span class="number">0</span></span><br><span class="line">    data = []</span><br><span class="line">    <span class="keyword">while</span> start &lt; max_capacity:</span><br><span class="line">        url = url_base + <span class="string">&quot;&amp;start=&quot;</span> + <span class="built_in">str</span>(start)</span><br><span class="line">        start += <span class="number">10</span></span><br><span class="line">        <span class="built_in">print</span>(url)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(retry_times):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                data.extend(get_paper_page(url))</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="keyword">if</span> i &lt; retry_times -<span class="number">1</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&quot;error, retrying ... &quot;</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&quot;error, fail to get &quot;</span>, url)</span><br><span class="line">                <span class="keyword">if</span> debug_mode:</span><br><span class="line">                    traceback.print_exc()</span><br><span class="line">                time.sleep(<span class="number">20</span>)</span><br><span class="line">        time.sleep(<span class="number">10</span>)</span><br><span class="line">    <span class="comment"># data: [论文标题, 引用数, 发表时间及机构缩写, 论文链接]</span></span><br><span class="line">    <span class="built_in">print</span>(data)</span><br><span class="line">    save_paper_list(data, save_file)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    get_paper_list_by_keywork(<span class="string">&quot; named entity recognition &quot;</span>, start_year=<span class="number">2020</span>, max_capacity=<span class="number">100</span>, debug_mode=<span class="literal">False</span>, save_file = <span class="string">&quot;paper_list.xlsx&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br></pre></td></tr></table></figure>
+        <h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见<a href="https://chadqiu.github.io/f06a19b2ce94.html">牛客网爬虫</a>，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。</p>
+<h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><p>但一般情况下要训练一个NLP模型需要几千到几万条有标注好的数据，而本项目没有现成的数据，这也是构建模型最困难的地方了。通过爬虫，获取了4万条左右的历史数据，包含id、用户昵称、标题、正文等内容，如下图所示，但没有标签。通过观察，可以把这些帖子大致分成 【招聘信息、经验贴、求助帖】三类，接下来就该考虑如何进行标注了。<br><img src="/images/newcoder_data.png" alt="牛客帖子数据"></p>
+<p>人工标注太费时费力了，而且非常的不优雅，我们还是希望找到一个自动标注的方法，这里首先想到的就是最近两年在学术界比较火的few-shot、zero-shot技术了，且一般模型越大，效果越好。目前能访问到的大模型有： <a href="">openAI</a>的GPT3及最近大火的chatGPT，<a target="_blank" rel="noopener" href="https://wenxin.baidu.com/ernie3">百度文心</a>的 ERNIE 3.0大模型，已经一些机构开源在<a target="_blank" rel="noopener" href="https://huggingface.co/models">huggingface</a> 和 <a target="_blank" rel="noopener" href="https://modelscope.cn/studios">魔搭社区</a>的大模型，我使用prompt进行了一轮zero-shot尝试。<br>prompt格式示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">请问下面文本属于 招聘信息、 经验贴、 求助贴 三者中的哪一类？</span><br><span class="line">秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]</span><br><span class="line"></span><br><span class="line">请问下面文本属于哪一类帖子？</span><br><span class="line">秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]</span><br><span class="line">选项：招聘信息, 经验贴, 求助贴</span><br><span class="line">答案：</span><br></pre></td></tr></table></figure>
+<p>经过一轮测试，发现他们的效果如下： chatGPT &gt; 百度文心  &gt;&gt;  others<br>chatGPT表现较好，绝大本分都预测的比较准确，百度文心也基本可用，大部分都能答正确，之后就准备使用API来调用这两个大模型来标数据了，但百度文心每天只能访问200次，我很快超出次数限制，现阶段还不能直接付费购买服务，只能填合作申请表，然后等待。<br>chatGPT不对中国用户开放，无法直接注册账户，通过特殊方法也是可以注册上的。前段时间翻墙后还能正常访问chatGPT的页面，但现在访问不了了，API在国内也访问不了，但可以采用“东数西算”的思想，把数据拿到国外的服务器上计算就行了，最简单的方法就是使用google的colab，免费创建一个notebook，并把数据传到google drive 或 GitHub，然后访问openAI的api。调用api需要先到<a target="_blank" rel="noopener" href="https://platform.openai.com/account/api-keys">官网</a>上申请一个API key，然后再调用，使用pyhton调用API的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> openai</span><br><span class="line">openai.api_key = <span class="string">&quot;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&quot;</span></span><br><span class="line"></span><br><span class="line">s = <span class="string">&#x27;&#x27;&#x27;请问下面文本属于 招聘信息、 经验贴、 求助贴 三者中的哪一类？\n秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">rst = openai.Completion.create(</span><br><span class="line">  model=<span class="string">&quot;text-davinci-003&quot;</span>,</span><br><span class="line">  prompt= s,</span><br><span class="line">  max_tokens=<span class="number">15</span>,</span><br><span class="line">  temperature=<span class="number">0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(rst[<span class="string">&#x27;choices&#x27;</span>][<span class="number">0</span>][<span class="string">&quot;text&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># output: \n\n这是求助贴</span></span><br></pre></td></tr></table></figure>
+<p>直接进去还没有chatGPT的API，但有 text-davinci-003 这一强大的模型，它基于GPT3大模型，使用了跟chatGPT相似的instruction训练，亲测效果很好，跟chatGPT差不多，甚至可以说就是chatGPT了。最终，用API标注了500条左右的数据，然后又人工标注了100条数据作为测试集。</p>
+<h2 id="模型与训练"><a href="#模型与训练" class="headerlink" title="模型与训练"></a>模型与训练</h2><p>训练的基本策略为使用伪标签技术，即先使用少量数据训练一个模型，让这个模型去标数据，然后用其标注的数据集进行训练，最后结果往往会超过原来那个标注的模型。<br>由于500条数据仍然很小，属于few-shot的范围了，因此希望使用尽量大的模型，一般模型也大，表现往往越好，大模型的few-shot能力也强，我在AutoDL上租了个24GB显存的A5000GPU，最大也就能训练1.3B大小的模型，但经过一系列实验后发现，居然是roberta-large表现最好，在我那个100数据的小测试集上F1 score超过了90%，然后用它对剩下的3万多条数据进行预测，生成标注数据集，最后使用该数据集训练一个新模型。<br>由于后期要在cpu上运行，因此希望使用尽量小的模型，这里选择了腾讯的 uer&#x2F;chinese_roberta_L-4_H-512 模型进行训练，训练结果出人意料的好(也许是测试集太小，不准确)，如下图所示：<br><img src="/images/newcoder_f1.png"></p>
+<p>训练完成后的模型在roberta4h512文件夹中，可通过huggingface本地读取，读取示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">from transformers import AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line">model_name = &quot;roberta4h512&quot;</span><br><span class="line">model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>爬取结果如下图所示：</p>
-<p><img src="/images/paper%20list.png" alt="结果截图"></p>
+<h2 id="预测过滤"><a href="#预测过滤" class="headerlink" title="预测过滤"></a>预测过滤</h2><p>我们把爬回来的帖子中预测为招聘信息的帖子留下来，其他的过滤掉即可。爬虫程序一天执行一次，可以采用类似懒加载的方式加载模型，为了性能，需要分batch进行计算。预测代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">batch_generate</span>(<span class="params">texts, tokenizer, model, id2label = &#123;<span class="number">0</span>: <span class="string">&#x27;招聘信息&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;经验贴&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;求助贴&#x27;</span>&#125;, max_length = <span class="number">128</span></span>):</span><br><span class="line">    inputs = tokenizer( texts, return_tensors=<span class="string">&quot;pt&quot;</span>, max_length=<span class="number">128</span>, padding=<span class="literal">True</span>, truncation=<span class="literal">True</span>)</span><br><span class="line">    outputs = model(**inputs).logits.argmax(-<span class="number">1</span>).tolist()</span><br><span class="line">    <span class="keyword">return</span> [id2label[x] <span class="keyword">for</span> x <span class="keyword">in</span> outputs]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_predict</span>(<span class="params">text_list, model_name = <span class="string">&quot;roberta4h512&quot;</span>, batch_size = <span class="number">16</span></span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text_list: <span class="keyword">return</span> []</span><br><span class="line">    model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">    tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    result, start = [], <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span>(start &lt; <span class="built_in">len</span>(text_list)):</span><br><span class="line">        result.extend(batch_generate(text_list[start : start + batch_size], tokenizer, model))</span><br><span class="line">        start += batch_size</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -393,7 +409,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://chadqiu.github.io/083653212f47.html" title="谷歌学术爬虫" target="_blank" rel="external">http://chadqiu.github.io/083653212f47.html</a>
+      <a href="http://chadqiu.github.io/9c6db4deaa59.html" title="如何从零开始构建一个网络讨论帖分类模型？" target="_blank" rel="external">http://chadqiu.github.io/9c6db4deaa59.html</a>
     </li>
     
     <li class="post-copyright-license">
@@ -442,14 +458,22 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/79bdc4d1f745.html" title="二分搜索"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/8e4779966831.html" title="使用python调用openAI chatGPT的API"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/f06a19b2ce94.html" title="牛客网爬虫"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/79bdc4d1f745.html" title="二分搜索"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
     
   </ul>
   
