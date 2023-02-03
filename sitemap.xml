@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://chadqiu.github.io/ed5507eb2665.html</loc>
+    
+    <lastmod>2023-02-03</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://chadqiu.github.io/e819d4a7ec80.html</loc>
     
     <lastmod>2023-02-03</lastmod>
@@ -21,15 +30,6 @@
   
   <url>
     <loc>http://chadqiu.github.io/6fcf23854660.html</loc>
-    
-    <lastmod>2023-02-03</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://chadqiu.github.io/ed5507eb2665.html</loc>
     
     <lastmod>2023-02-03</lastmod>
     
@@ -83,7 +83,7 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/repository/index.html</loc>
+    <loc>http://chadqiu.github.io/links/index.html</loc>
     
     <lastmod>2023-01-27</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/links/index.html</loc>
+    <loc>http://chadqiu.github.io/repository/index.html</loc>
     
     <lastmod>2023-01-27</lastmod>
     
@@ -195,14 +195,14 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/tags/NLP/</loc>
+    <loc>http://chadqiu.github.io/tags/train/</loc>
     <lastmod>2023-02-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/tags/train/</loc>
+    <loc>http://chadqiu.github.io/tags/NLP/</loc>
     <lastmod>2023-02-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
