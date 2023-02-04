@@ -32,7 +32,7 @@ site:
     height: 40
     # url: images/logo.jpg
   title: chadqiu's blog # 页面title
-  favicon: images/logo.jpg
+  favicon: images/avatar.jpg
   board: <p>欢迎交流与分享经验!</p> # 站点公告
   copyright: false # 底部版权信息
 
@@ -200,7 +200,7 @@ fb_app_id:
 profile:
   enabled: true # Whether to show profile bar
   articleSelfBlock: false # 关闭文章下方的自我介绍
-  avatar: images/avatar.jpg
+  avatar: images/logo.jpg
   gravatar: # Gravatar email address, if you enable Gravatar, your avatar config will be overriden
   author: chadqiu
   author_title: Developer & Researcher
