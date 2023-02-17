@@ -229,6 +229,27 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>http://chadqiu.github.io/tags/BERT/</loc>
+    <lastmod>2023-02-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://chadqiu.github.io/tags/GPT/</loc>
+    <lastmod>2023-02-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://chadqiu.github.io/tags/T5/</loc>
+    <lastmod>2023-02-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>

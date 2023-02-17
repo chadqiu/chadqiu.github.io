@@ -26,6 +26,9 @@ http://chadqiu.github.io/tags/train/
 http://chadqiu.github.io/tags/%E7%88%AC%E8%99%AB/
 http://chadqiu.github.io/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/
 http://chadqiu.github.io/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/
+http://chadqiu.github.io/tags/BERT/
+http://chadqiu.github.io/tags/GPT/
+http://chadqiu.github.io/tags/T5/
 http://chadqiu.github.io/categories/AI/
 http://chadqiu.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/
 http://chadqiu.github.io/categories/tools-%E7%88%AC%E8%99%AB/
