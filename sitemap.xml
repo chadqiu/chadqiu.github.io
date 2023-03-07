@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://chadqiu.github.io/b52babec2ebe.html</loc>
+    
+    <lastmod>2023-03-07</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://chadqiu.github.io/8dac20b4868e.html</loc>
     
     <lastmod>2023-03-07</lastmod>
@@ -277,6 +286,13 @@
   
   <url>
     <loc>http://chadqiu.github.io/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84/</loc>
+    <lastmod>2023-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://chadqiu.github.io/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/</loc>
     <lastmod>2023-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
