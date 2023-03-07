@@ -6,7 +6,7 @@
   <link href="http://chadqiu.github.io/atom.xml" rel="self"/>
   
   <link href="http://chadqiu.github.io/"/>
-  <updated>2023-03-05T08:05:18.853Z</updated>
+  <updated>2023-03-07T05:24:40.179Z</updated>
   <id>http://chadqiu.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>最短路径算法</title>
+    <link href="http://chadqiu.github.io/8dac20b4868e.html"/>
+    <id>http://chadqiu.github.io/8dac20b4868e.html</id>
+    <published>2023-03-07T05:16:37.000Z</published>
+    <updated>2023-03-07T05:24:40.179Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Dijkstra"><a href="#Dijkstra" class="headerlink" title="Dijkstra"></a>Dijkstra</h2><p>求某一起点到其他各点的最短路径，图中不能包含负环</p><p>例题： <a href="https://leetcode.cn/problems/network-delay-time/">lc743.网络延迟问题</a><br>代码：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">networkDelayTime</span><span class="params">(<span class="type">int</span>[][] times, <span class="type">int</span> n, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(times == <span class="literal">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        List&lt;<span class="type">int</span>[]&gt;[] graph = <span class="keyword">new</span> <span class="title class_">ArrayList</span>[n+<span class="number">1</span>];   <span class="comment">//邻接表</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt;= n; i++) graph[i] = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span>[] edge : times)&#123;</span><br><span class="line">            graph[edge[<span class="number">0</span>]].add(<span class="keyword">new</span> <span class="title class_">int</span>[]&#123;edge[<span class="number">1</span>], edge[<span class="number">2</span>]&#125;);    <span class="comment">//初始边 [to, dist]</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> distTo[] = <span class="keyword">new</span> <span class="title class_">int</span>[n+<span class="number">1</span>];</span><br><span class="line">        Arrays.fill(distTo, Integer.MAX_VALUE);</span><br><span class="line">        distTo[k] = <span class="number">0</span>;</span><br><span class="line">        PriorityQueue&lt;<span class="type">int</span>[]&gt; q = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>&lt;&gt;((x,y)-&gt; x[<span class="number">1</span>] - y[<span class="number">1</span>]);</span><br><span class="line">        q.add(<span class="keyword">new</span> <span class="title class_">int</span>[]&#123;k, <span class="number">0</span>&#125;);</span><br><span class="line">        <span class="keyword">while</span>(! q.isEmpty())&#123;</span><br><span class="line">            <span class="type">int</span>[] cur = q.poll();</span><br><span class="line">            <span class="keyword">if</span>(cur[<span class="number">1</span>] &gt; distTo[cur[<span class="number">0</span>]]) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span>[] x : graph[cur[<span class="number">0</span>]])&#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">dist</span> <span class="operator">=</span> distTo[cur[<span class="number">0</span>]] + x[<span class="number">1</span>];</span><br><span class="line">                <span class="keyword">if</span>(dist &lt; distTo[x[<span class="number">0</span>]])&#123;</span><br><span class="line">                    distTo[x[<span class="number">0</span>]] = dist;</span><br><span class="line">                    q.add(<span class="keyword">new</span> <span class="title class_">int</span>[]&#123;x[<span class="number">0</span>], dist&#125;);    <span class="comment">//[to, dist]</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">max</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(distTo[i] &gt; max) max = distTo[i];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> max == Integer.MAX_VALUE ? -<span class="number">1</span> : max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;Dijkstra&quot;&gt;&lt;a href=&quot;#Dijkstra&quot; class=&quot;headerlink&quot; title=&quot;Dijkstra&quot;&gt;&lt;/a&gt;Dijkstra&lt;/h2&gt;&lt;p&gt;求某一起点到其他各点的最短路径，图中不能包含负环&lt;/p&gt;
+&lt;p&gt;例题： &lt;a href=&quot;h</summary>
+      
+    
+    
+    
+    <category term="计算机基础 - 数据结构与算法" scheme="http://chadqiu.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="算法" scheme="http://chadqiu.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="Java" scheme="http://chadqiu.github.io/tags/Java/"/>
+    
+    <category term="最短路径" scheme="http://chadqiu.github.io/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84/"/>
+    
+  </entry>
   
   <entry>
     <title>二叉树的各种遍历</title>
