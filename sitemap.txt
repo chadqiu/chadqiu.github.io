@@ -2,13 +2,13 @@ http://chadqiu.github.io/62a45a82a2f9.html
 http://chadqiu.github.io/a42e1736d2ee.html
 http://chadqiu.github.io/repository/index.html
 http://chadqiu.github.io/tags/index.html
-http://chadqiu.github.io/books/index.html
 http://chadqiu.github.io/about/index.html
-http://chadqiu.github.io/categories/index.html
 http://chadqiu.github.io/links/index.html
+http://chadqiu.github.io/categories/index.html
+http://chadqiu.github.io/books/index.html
 http://chadqiu.github.io/9244fc05ea6b.html
-http://chadqiu.github.io/395c25595e33.html
 http://chadqiu.github.io/fcb5896c5f58.html
+http://chadqiu.github.io/395c25595e33.html
 http://chadqiu.github.io/f06a19b2ce94.html
 http://chadqiu.github.io/083653212f47.html
 http://chadqiu.github.io/6fcf23854660.html
@@ -23,8 +23,8 @@ http://chadqiu.github.io/tags/%E7%AE%97%E6%B3%95/
 http://chadqiu.github.io/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/
 http://chadqiu.github.io/tags/Java/
 http://chadqiu.github.io/tags/NLP/
-http://chadqiu.github.io/tags/%E7%88%AC%E8%99%AB/
 http://chadqiu.github.io/tags/train/
+http://chadqiu.github.io/tags/%E7%88%AC%E8%99%AB/
 http://chadqiu.github.io/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/
 http://chadqiu.github.io/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/
 http://chadqiu.github.io/categories/AI/

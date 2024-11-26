@@ -38,25 +38,7 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/books/index.html</loc>
-    
-    <lastmod>2024-11-26</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://chadqiu.github.io/about/index.html</loc>
-    
-    <lastmod>2024-11-26</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://chadqiu.github.io/categories/index.html</loc>
     
     <lastmod>2024-11-26</lastmod>
     
@@ -74,6 +56,24 @@
   </url>
   
   <url>
+    <loc>http://chadqiu.github.io/categories/index.html</loc>
+    
+    <lastmod>2024-11-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chadqiu.github.io/books/index.html</loc>
+    
+    <lastmod>2024-11-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://chadqiu.github.io/9244fc05ea6b.html</loc>
     
     <lastmod>2024-11-26</lastmod>
@@ -83,7 +83,7 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/395c25595e33.html</loc>
+    <loc>http://chadqiu.github.io/fcb5896c5f58.html</loc>
     
     <lastmod>2024-11-26</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/fcb5896c5f58.html</loc>
+    <loc>http://chadqiu.github.io/395c25595e33.html</loc>
     
     <lastmod>2024-11-26</lastmod>
     
@@ -211,14 +211,14 @@
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/tags/%E7%88%AC%E8%99%AB/</loc>
+    <loc>http://chadqiu.github.io/tags/train/</loc>
     <lastmod>2024-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://chadqiu.github.io/tags/train/</loc>
+    <loc>http://chadqiu.github.io/tags/%E7%88%AC%E8%99%AB/</loc>
     <lastmod>2024-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
