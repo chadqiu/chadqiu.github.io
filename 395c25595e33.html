@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>爬虫入门 | chadqiu&#39;s blog</title>
+  <meta name="description" content="爬虫可以模拟浏览器向网站发起请求，获取网站数据，代替人做一些重复性劳动。 常见的网站可分为： 前后端分离架构 和 前后端不分离架构。对于前后端分离架构，只要发送request，返回的数据一般是json格式，很好处理；对于前后端不分离的网站，只能获取其html页面，然后使用BeautifulSoup从中提取想要的内容。 有些网站有反爬机制，需要做一些额外配置，最常见的是加一个’User-Agent’">
+<meta property="og:type" content="article">
+<meta property="og:title" content="爬虫入门">
+<meta property="og:url" content="http://chadqiu.github.io/395c25595e33.html">
+<meta property="og:site_name" content="chadqiu">
+<meta property="og:description" content="爬虫可以模拟浏览器向网站发起请求，获取网站数据，代替人做一些重复性劳动。 常见的网站可分为： 前后端分离架构 和 前后端不分离架构。对于前后端分离架构，只要发送request，返回的数据一般是json格式，很好处理；对于前后端不分离的网站，只能获取其html页面，然后使用BeautifulSoup从中提取想要的内容。 有些网站有反爬机制，需要做一些额外配置，最常见的是加一个’User-Agent’">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-27T05:38:36.000Z">
+<meta property="article:modified_time" content="2024-11-26T16:26:22.004Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://chadqiu.github.io/395c25595e33.html">
+  
+    <link rel="alternate" href="/atom.xml" title="chadqiu" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="images/avatar.jpg" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/chadqiu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/logo.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">chadqiu</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer &amp; Researcher</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shanghai, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dataset/" rel="tag">dataset</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/huggingface/" rel="tag">huggingface</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/train/" rel="tag">train</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" rel="tag">二分搜索</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" rel="tag">牛客网</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" rel="tag">谷歌学术</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/AI/" style="font-size: 13.33px;">AI</a> <a href="/tags/Java/" style="font-size: 13px;">Java</a> <a href="/tags/NLP/" style="font-size: 13.33px;">NLP</a> <a href="/tags/dataset/" style="font-size: 13px;">dataset</a> <a href="/tags/huggingface/" style="font-size: 13.67px;">huggingface</a> <a href="/tags/python/" style="font-size: 14px;">python</a> <a href="/tags/train/" style="font-size: 13px;">train</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" style="font-size: 13px;">二分搜索</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 13.67px;">爬虫</a> <a href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" style="font-size: 13px;">牛客网</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 13px;">算法</a> <a href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" style="font-size: 13px;">谷歌学术</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">十一月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/a42e1736d2ee.html" class="title">24-11-24Z哥直播</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-11-26T16:50:26.000Z" itemprop="datePublished">2024-11-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/fcb5896c5f58.html" class="title">如何使用huggingface的trainer训练模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T13:34:25.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/6fcf23854660.html" class="title">如何构建一个自定义huggingface dataset数据集？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T04:37:34.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/9244fc05ea6b.html" class="title">如何从零开始构建一个网络讨论帖分类模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T00:56:52.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/79bdc4d1f745.html" class="title">二分搜索</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-27T17:59:16.000Z" itemprop="datePublished">2023-01-28</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.</span> <span class="toc-text">一些示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%90%9C%E7%8B%97%E7%BD%91%E9%A1%B5%E6%8F%90%E5%8F%96"><span class="toc-number">1.1.</span> <span class="toc-text">搜狗网页提取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E7%99%BE%E5%BA%A6%E7%BF%BB%E8%AF%91"><span class="toc-number">1.2.</span> <span class="toc-text">调用百度翻译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B1%86%E7%93%A3%E7%94%B5%E5%BD%B1"><span class="toc-number">1.3.</span> <span class="toc-text">豆瓣电影</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF"><span class="toc-number">1.4.</span> <span class="toc-text">谷歌学术</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-爬虫入门" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      爬虫入门
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/395c25595e33.html" class="article-date">
+	  <time datetime="2023-01-27T05:38:36.000Z" itemprop="datePublished">2023-01-27</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/python/" rel="tag">python</a>, <a class="article-tag-link-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/395c25595e33.html#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>爬虫可以模拟浏览器向网站发起请求，获取网站数据，代替人做一些重复性劳动。</p>
+<p>常见的网站可分为： 前后端分离架构 和 前后端不分离架构。对于前后端分离架构，只要发送request，返回的数据一般是json格式，很好处理；对于前后端不分离的网站，只能获取其html页面，然后使用BeautifulSoup从中提取想要的内容。</p>
+<p>有些网站有反爬机制，需要做一些额外配置，最常见的是加一个’User-Agent’，有些需要cookie等其他header信息。具体信息可使用浏览器的开发者工具查看，chrome浏览器的快捷键为 “ctrl + shift + i”，然后点击network, 重新发送请求，即可看到请求的具体参数，也可用postman测试需要哪些参数。</p>
+<p>一个简单的request请求结构如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导入 requests 包</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 发送请求</span></span><br><span class="line">x = requests.get(<span class="string">&#x27;https://www.sogou.com/web?query=上海&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回网页内容</span></span><br><span class="line"><span class="built_in">print</span>(x.text)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="一些示例"><a href="#一些示例" class="headerlink" title="一些示例"></a>一些示例</h2><h3 id="搜狗网页提取"><a href="#搜狗网页提取" class="headerlink" title="搜狗网页提取"></a>搜狗网页提取</h3><p>将搜索“上海”的结果页面保存到 “上海.html” 文件，设置了 “user-agent”</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;user-agent&quot;</span>:<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">param = &#123;</span><br><span class="line">    <span class="string">&quot;query&quot;</span>: <span class="string">&quot;上海&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">x = requests.get(<span class="string">&#x27;https://www.sogou.com/web&#x27;</span>, params = param, headers = header)</span><br><span class="line"><span class="built_in">print</span>(x.text)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;上海.html&quot;</span>, <span class="string">&#x27;w&#x27;</span>, encoding = <span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(x.text)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="调用百度翻译"><a href="#调用百度翻译" class="headerlink" title="调用百度翻译"></a>调用百度翻译</h3><p>百度翻译采用了前后端分离架构，返回的结果是json，非常便于处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;user-agent&quot;</span>:<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">&quot;kw&quot;</span>: <span class="string">&quot;crawler&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">x = requests.post(<span class="string">&#x27;https://fanyi.baidu.com/sug&#x27;</span>, data = data, headers = header)</span><br><span class="line"><span class="built_in">print</span>(x.json())</span><br></pre></td></tr></table></figure>
+
+<h3 id="豆瓣电影"><a href="#豆瓣电影" class="headerlink" title="豆瓣电影"></a>豆瓣电影</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&quot;user-agent&quot;</span>:<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">param = &#123;</span><br><span class="line">    <span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;24&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;interval_id&#x27;</span>: <span class="string">&#x27;100:90&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;start&#x27;</span>: <span class="string">&#x27;40&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;limit&#x27;</span>: <span class="string">&#x27;20&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">x = requests.get(<span class="string">&#x27;https://movie.douban.com/j/chart/top_list&#x27;</span>, params = param, headers = header)</span><br><span class="line"><span class="built_in">print</span>(x.json())</span><br></pre></td></tr></table></figure>
+
+<h3 id="谷歌学术"><a href="#谷歌学术" class="headerlink" title="谷歌学术"></a>谷歌学术</h3><p>需要科学上网</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request,urllib.error</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line">headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) &#x27;</span></span><br><span class="line">                             <span class="string">&#x27;Chrome/90.0.4430.93 Safari/537.36&#x27;</span>&#125;</span><br><span class="line">url = <span class="string">&#x27;https://scholar.google.com/scholar?hl=zh-CN&amp;as_sdt=0%2C5&amp;as_ylo=2018&amp;q=zero-shot+NER&#x27;</span></span><br><span class="line">req = urllib.request.Request(url=url, headers=headers)</span><br><span class="line">res = urllib.request.urlopen(req, timeout=<span class="number">7</span>)</span><br><span class="line">html=res.read().decode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">soup=BeautifulSoup(html,<span class="string">&quot;lxml&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(soup)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://chadqiu.github.io/395c25595e33.html" title="爬虫入门" target="_blank" rel="external">http://chadqiu.github.io/395c25595e33.html</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/chadqiu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/logo.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/chadqiu" target="_blank"><span class="text-dark">chadqiu</span><small class="ml-1x">Developer &amp; Researcher</small></a></h3>
+        <div>在校程序猿</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81Nzk4OC8zNDQ1MQ==">
+        <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+      </div>    
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/f06a19b2ce94.html" title="牛客网爬虫"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/62a45a82a2f9.html" title="Hexo 常用操作命令"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+<script defer type="text/javascript">
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+
+    if (typeof LivereTower === 'function') { return; }
+
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>如何从零开始构建一个网络讨论帖分类模型？ | chadqiu&#39;s blog</title>
+  <meta name="description" content="Motivation前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见牛客网爬虫，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。 数据准备但一般情况下要训练">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何从零开始构建一个网络讨论帖分类模型？">
+<meta property="og:url" content="http://chadqiu.github.io/9244fc05ea6b.html">
+<meta property="og:site_name" content="chadqiu">
+<meta property="og:description" content="Motivation前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见牛客网爬虫，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。 数据准备但一般情况下要训练">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chadqiu.github.io/images/newcoder_data.png">
+<meta property="og:image" content="http://chadqiu.github.io/images/newcoder_f1.png">
+<meta property="article:published_time" content="2023-02-03T00:56:52.000Z">
+<meta property="article:modified_time" content="2024-11-26T16:26:22.004Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="huggingface">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="NLP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chadqiu.github.io/images/newcoder_data.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://chadqiu.github.io/9244fc05ea6b.html">
+  
+    <link rel="alternate" href="/atom.xml" title="chadqiu" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="images/avatar.jpg" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/chadqiu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/logo.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">chadqiu</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer &amp; Researcher</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shanghai, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dataset/" rel="tag">dataset</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/huggingface/" rel="tag">huggingface</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/train/" rel="tag">train</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" rel="tag">二分搜索</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" rel="tag">牛客网</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" rel="tag">谷歌学术</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/AI/" style="font-size: 13.33px;">AI</a> <a href="/tags/Java/" style="font-size: 13px;">Java</a> <a href="/tags/NLP/" style="font-size: 13.33px;">NLP</a> <a href="/tags/dataset/" style="font-size: 13px;">dataset</a> <a href="/tags/huggingface/" style="font-size: 13.67px;">huggingface</a> <a href="/tags/python/" style="font-size: 14px;">python</a> <a href="/tags/train/" style="font-size: 13px;">train</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" style="font-size: 13px;">二分搜索</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 13.67px;">爬虫</a> <a href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" style="font-size: 13px;">牛客网</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 13px;">算法</a> <a href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" style="font-size: 13px;">谷歌学术</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">十一月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/a42e1736d2ee.html" class="title">24-11-24Z哥直播</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-11-26T16:50:26.000Z" itemprop="datePublished">2024-11-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/fcb5896c5f58.html" class="title">如何使用huggingface的trainer训练模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T13:34:25.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/6fcf23854660.html" class="title">如何构建一个自定义huggingface dataset数据集？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T04:37:34.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/9244fc05ea6b.html" class="title">如何从零开始构建一个网络讨论帖分类模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T00:56:52.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/79bdc4d1f745.html" class="title">二分搜索</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-27T17:59:16.000Z" itemprop="datePublished">2023-01-28</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E8%AE%AD%E7%BB%83"><span class="toc-number">3.</span> <span class="toc-text">模型与训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E6%B5%8B%E8%BF%87%E6%BB%A4"><span class="toc-number">4.</span> <span class="toc-text">预测过滤</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-如何从零开始构建一个网络讨论帖分类模型" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      如何从零开始构建一个网络讨论帖分类模型？
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/9244fc05ea6b.html" class="article-date">
+	  <time datetime="2023-02-03T00:56:52.000Z" itemprop="datePublished">2023-02-03</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/AI/">AI</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/AI/" rel="tag">AI</a>, <a class="article-tag-link-link" href="/tags/NLP/" rel="tag">NLP</a>, <a class="article-tag-link-link" href="/tags/huggingface/" rel="tag">huggingface</a>, <a class="article-tag-link-link" href="/tags/python/" rel="tag">python</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/9244fc05ea6b.html#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>前几天搭建了一个对牛客网每天最新的工作信息进行爬取的程序，见<a href="https://chadqiu.github.io/f06a19b2ce94.html">牛客网爬虫</a>，但从网上爬取下来的帖子有很多不是工作信息，需要把这部分干扰信息给排除掉，否则很影响使用心情。之前使用关键词与正则表达式进行了简单过滤，但总是有一些漏网之鱼，且容易误伤，如果能训练一个NLP分类模型来进行过滤，那就再好不过了，正好本人的研究方向是NLP，就想试着构建一个模型玩玩了。</p>
+<h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><p>但一般情况下要训练一个NLP模型需要几千到几万条有标注好的数据，而本项目没有现成的数据，这也是构建模型最困难的地方了。通过爬虫，获取了4万条左右的历史数据，包含id、用户昵称、标题、正文等内容，如下图所示，但没有标签。通过观察，可以把这些帖子大致分成 【招聘信息、经验贴、求助帖】三类，接下来就该考虑如何进行标注了。<br><img src="/images/newcoder_data.png" alt="牛客帖子数据"></p>
+<p>人工标注太费时费力了，而且非常的不优雅，我们还是希望找到一个自动标注的方法，这里首先想到的就是最近两年在学术界比较火的few-shot、zero-shot技术了，且一般模型越大，效果越好。目前能访问到的大模型有： <a target="_blank" rel="noopener" href="https://openai.com/">openAI</a>的GPT3及最近大火的chatGPT，<a target="_blank" rel="noopener" href="https://wenxin.baidu.com/ernie3">百度文心</a>的 ERNIE 3.0大模型，已经一些机构开源在<a target="_blank" rel="noopener" href="https://huggingface.co/models">huggingface</a> 和 <a target="_blank" rel="noopener" href="https://modelscope.cn/studios">魔搭社区</a>的大模型，我使用prompt进行了一轮zero-shot尝试。<br>prompt格式示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">请问下面文本属于 招聘信息、 经验贴、 求助贴 三者中的哪一类？</span><br><span class="line">秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]</span><br><span class="line"></span><br><span class="line">请问下面文本属于哪一类帖子？</span><br><span class="line">秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]</span><br><span class="line">选项：招聘信息, 经验贴, 求助贴</span><br><span class="line">答案：</span><br></pre></td></tr></table></figure>
+<p>经过一轮测试，发现他们的效果如下： chatGPT &gt; 百度文心  &gt;&gt;  others<br>chatGPT表现较好，绝大本分都预测的比较准确，百度文心也基本可用，大部分都能答正确，之后就准备使用API来调用这两个大模型来标数据了，但百度文心每天只能访问200次，我很快超出次数限制，现阶段还不能直接付费购买服务，只能填合作申请表，然后等待。<br>chatGPT不对中国用户开放，无法直接注册账户，通过特殊方法也是可以注册上的。前段时间翻墙后还能正常访问chatGPT的页面，但现在访问不了了，API在国内也访问不了，但可以采用“东数西算”的思想，把数据拿到国外的服务器上计算就行了，最简单的方法就是使用google的colab，免费创建一个notebook，并把数据传到google drive 或 GitHub，然后访问openAI的api。调用api需要先到<a target="_blank" rel="noopener" href="https://platform.openai.com/account/api-keys">官网</a>上申请一个API key，然后再调用，使用pyhton调用API的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> openai</span><br><span class="line">openai.api_key = <span class="string">&quot;your api key&quot;</span></span><br><span class="line"></span><br><span class="line">s = <span class="string">&#x27;&#x27;&#x27;请问下面文本属于哪一类帖子？</span></span><br><span class="line"><span class="string">viv0社招。 	#春招# 有匹配岗位 有意向大佬欢迎＋微g1r4ffe内推 ...viv0社招开启，岗位多多hc多多。博士应聘专家岗位有1年以上工作经验即可 #社招#</span></span><br><span class="line"><span class="string">选项：招聘信息, 经验贴, 求助贴</span></span><br><span class="line"><span class="string">答案：&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">rst = openai.Completion.create(</span><br><span class="line">  model=<span class="string">&quot;text-davinci-003&quot;</span>, </span><br><span class="line">  prompt= s,</span><br><span class="line">  max_tokens=<span class="number">15</span>,</span><br><span class="line">  temperature=<span class="number">0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(rst[<span class="string">&#x27;choices&#x27;</span>][<span class="number">0</span>][<span class="string">&quot;text&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># output: 招聘信息</span></span><br></pre></td></tr></table></figure>
+
+<p>直接进去还没有chatGPT的API，但有 text-davinci-003 这一强大的模型，它基于GPT3大模型，使用了跟chatGPT相似的instruction训练，亲测效果很好，跟chatGPT差不多，甚至可以说就是chatGPT了。最终，用API标注了500条左右的数据，然后又人工标注了100条数据作为测试集。</p>
+<h2 id="模型与训练"><a href="#模型与训练" class="headerlink" title="模型与训练"></a>模型与训练</h2><p>训练的基本策略为使用伪标签技术，即先使用少量数据训练一个模型，让这个模型去标数据，然后用其标注的数据集进行训练，最后结果往往会超过原来那个标注的模型。<br>由于500条数据仍然很小，属于few-shot的范围了，因此希望使用尽量大的模型，一般模型越大，表现往往越好，大模型的few-shot能力也强，我在AutoDL上租了个24GB显存的A5000GPU，最大也就能训练1.3B大小的模型，但经过一系列实验后发现，居然是roberta-large表现最好，在我那个100数据的小测试集上F1 score超过了90%，然后用它对剩下的3万多条数据进行预测，生成标注数据集，最后使用该数据集训练一个新模型。<br>由于后期要在cpu上运行，因此希望使用尽量小的模型，这里选择了腾讯的 uer&#x2F;chinese_roberta_L-4_H-512 模型进行训练，训练结果出人意料的好(也许是测试集太小，不准确)，如下图所示：<br><img src="/images/newcoder_f1.png"></p>
+<p>训练完成后的模型在roberta4h512文件夹中，可通过huggingface本地读取，读取示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">from transformers import AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line">model_name = &quot;roberta4h512&quot;</span><br><span class="line">model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>模型训练代码： <a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler/blob/main/bert_train.py">bert_train.py</a><br>使用训练好的模型进行伪标签数据生成的代码：<a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler/blob/main/predict.py">predict.py</a><br>模型训练细节见 <a href="https://chadqiu.github.io/e819d4a7ec80.html">如何使用huggingface的trainer训练模型？</a></p>
+<h2 id="预测过滤"><a href="#预测过滤" class="headerlink" title="预测过滤"></a>预测过滤</h2><p>我们把爬回来的帖子中预测为招聘信息的帖子留下来，其他的过滤掉即可。爬虫程序一天执行一次，可以采用类似懒加载的方式加载模型，为了性能，需要分batch进行计算, 实测在cpu下183条数据需要6.5s左右，平均每条数据推理时间在36ms左右。预测代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_batch_generate</span>(<span class="params">texts, model, tokenizer, id2label = &#123;<span class="number">0</span>: <span class="string">&#x27;招聘信息&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;经验贴&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;求助贴&#x27;</span>&#125;, max_length = <span class="number">128</span></span>):</span><br><span class="line">    inputs = tokenizer( texts, return_tensors=<span class="string">&quot;pt&quot;</span>, max_length=<span class="number">128</span>, padding=<span class="literal">True</span>, truncation=<span class="literal">True</span>)</span><br><span class="line">    outputs = model(**inputs).logits.argmax(-<span class="number">1</span>).tolist()</span><br><span class="line">    <span class="keyword">return</span> [id2label[x] <span class="keyword">for</span> x <span class="keyword">in</span> outputs]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_predict</span>(<span class="params">text_list, model = <span class="literal">None</span>, tokenizer = <span class="literal">None</span>, model_name = <span class="string">&quot;roberta4h512&quot;</span>, batch_size = <span class="number">4</span></span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text_list: <span class="keyword">return</span> []</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> model:</span><br><span class="line">        model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> tokenizer:</span><br><span class="line">        tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    result, start = [], <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span>(start &lt; <span class="built_in">len</span>(text_list)):</span><br><span class="line">        result.extend(_batch_generate(text_list[start : start + batch_size], model, tokenizer))</span><br><span class="line">        start += batch_size</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>使用示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">ss = [</span><br><span class="line">    <span class="string">&#x27;秋招大结局（泪目了）。家人们泪目了，一波三折之后获得的小奖状，已经准备春招了，没想到被捞啦，嗐，总之是有个结果，还是很开心的[掉小珍珠了][掉小珍珠了]&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;找到工作之后还要继续找吗。5k 加班严重 春招还想继续找 大家有什么好的建议 #我的求职思考# ...双非应届本科 拿了一个广州嵌入式offer 待遇9.&#x27;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(model_predict(ss))</span><br><span class="line"></span><br><span class="line"><span class="comment"># output: [&#x27;经验贴&#x27;, &#x27;求助贴&#x27;]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>项目guthub地址：<a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler">https://github.com/chadqiu/newcoder-crawler</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://chadqiu.github.io/9244fc05ea6b.html" title="如何从零开始构建一个网络讨论帖分类模型？" target="_blank" rel="external">http://chadqiu.github.io/9244fc05ea6b.html</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/chadqiu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/logo.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/chadqiu" target="_blank"><span class="text-dark">chadqiu</span><small class="ml-1x">Developer &amp; Researcher</small></a></h3>
+        <div>在校程序猿</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81Nzk4OC8zNDQ1MQ==">
+        <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+      </div>    
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/6fcf23854660.html" title="如何构建一个自定义huggingface dataset数据集？"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/79bdc4d1f745.html" title="二分搜索"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+<script defer type="text/javascript">
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+
+    if (typeof LivereTower === 'function') { return; }
+
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>

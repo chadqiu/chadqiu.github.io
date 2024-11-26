@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>牛客网爬虫 | chadqiu&#39;s blog</title>
+  <meta name="description" content="爬取牛客网的帖子，获取一些感兴趣的信息，比如职位内推等。为获得每日最新数据，系统使用增量更新，老数据保存到mysql数据库中用于去重，使用NLP分类模型进行内容筛选，过滤掉无关内容，每日新增的数据发邮件提醒，使用crontab定时任务每天自动运行，邮件效果如下图所示:  MySQL数据表结构如下12345678910CREATE TABLE IF NOT EXISTS &#96;newcoder_sear">
+<meta property="og:type" content="article">
+<meta property="og:title" content="牛客网爬虫">
+<meta property="og:url" content="http://chadqiu.github.io/f06a19b2ce94.html">
+<meta property="og:site_name" content="chadqiu">
+<meta property="og:description" content="爬取牛客网的帖子，获取一些感兴趣的信息，比如职位内推等。为获得每日最新数据，系统使用增量更新，老数据保存到mysql数据库中用于去重，使用NLP分类模型进行内容筛选，过滤掉无关内容，每日新增的数据发邮件提醒，使用crontab定时任务每天自动运行，邮件效果如下图所示:  MySQL数据表结构如下12345678910CREATE TABLE IF NOT EXISTS &#96;newcoder_sear">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/dc63410d0da4456e836c9a4ccfcd338e.png">
+<meta property="og:image" content="http://chadqiu.github.io/images/nacos_params.png">
+<meta property="og:image" content="http://chadqiu.github.io/images/nacos_newcoder_keyword.png">
+<meta property="og:image" content="http://chadqiu.github.io/images/nacos_mail_config.png">
+<meta property="article:published_time" content="2023-01-27T08:43:42.000Z">
+<meta property="article:modified_time" content="2024-11-26T16:26:22.004Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="爬虫">
+<meta property="article:tag" content="牛客网">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/dc63410d0da4456e836c9a4ccfcd338e.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://chadqiu.github.io/f06a19b2ce94.html">
+  
+    <link rel="alternate" href="/atom.xml" title="chadqiu" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="images/avatar.jpg" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/chadqiu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/logo.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">chadqiu</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer &amp; Researcher</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shanghai, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dataset/" rel="tag">dataset</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/huggingface/" rel="tag">huggingface</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/train/" rel="tag">train</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" rel="tag">二分搜索</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" rel="tag">牛客网</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" rel="tag">谷歌学术</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/AI/" style="font-size: 13.33px;">AI</a> <a href="/tags/Java/" style="font-size: 13px;">Java</a> <a href="/tags/NLP/" style="font-size: 13.33px;">NLP</a> <a href="/tags/dataset/" style="font-size: 13px;">dataset</a> <a href="/tags/huggingface/" style="font-size: 13.67px;">huggingface</a> <a href="/tags/python/" style="font-size: 14px;">python</a> <a href="/tags/train/" style="font-size: 13px;">train</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" style="font-size: 13px;">二分搜索</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 13.67px;">爬虫</a> <a href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" style="font-size: 13px;">牛客网</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 13px;">算法</a> <a href="/tags/%E8%B0%B7%E6%AD%8C%E5%AD%A6%E6%9C%AF/" style="font-size: 13px;">谷歌学术</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">十一月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/a42e1736d2ee.html" class="title">24-11-24Z哥直播</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-11-26T16:50:26.000Z" itemprop="datePublished">2024-11-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/fcb5896c5f58.html" class="title">如何使用huggingface的trainer训练模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T13:34:25.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/6fcf23854660.html" class="title">如何构建一个自定义huggingface dataset数据集？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T04:37:34.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/AI/">AI</a>
+              </p>
+              <p class="item-title">
+                <a href="/9244fc05ea6b.html" class="title">如何从零开始构建一个网络讨论帖分类模型？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-03T00:56:52.000Z" itemprop="datePublished">2023-02-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">计算机基础 - 数据结构与算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/79bdc4d1f745.html" class="title">二分搜索</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-27T17:59:16.000Z" itemprop="datePublished">2023-01-28</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E5%A6%82%E4%B8%8B"><span class="toc-number">1.</span> <span class="toc-text">MySQL数据表结构如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E7%88%AC%E8%99%AB"><span class="toc-number">2.</span> <span class="toc-text">python爬虫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%90%BD%E5%BA%93%E5%8E%BB%E9%87%8D"><span class="toc-number">3.</span> <span class="toc-text">数据落库去重</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81"><span class="toc-number">4.</span> <span class="toc-text">邮件发送</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E6%88%90%E6%8E%A7%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">集成控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AE%B9%E7%AD%9B%E9%80%89"><span class="toc-number">6.</span> <span class="toc-text">内容筛选</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99shell%E8%84%9A%E6%9C%AC%EF%BC%8C%E4%BD%BF%E7%94%A8crontab%E8%87%AA%E5%8A%A8%E8%BF%90%E8%A1%8C"><span class="toc-number">7.</span> <span class="toc-text">编写shell脚本，使用crontab自动运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crontab%E9%85%8D%E7%BD%AE"><span class="toc-number">8.</span> <span class="toc-text">crontab配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-number">9.</span> <span class="toc-text">Nacos配置中心</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-牛客网爬虫" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      牛客网爬虫
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/f06a19b2ce94.html" class="article-date">
+	  <time datetime="2023-01-27T08:43:42.000Z" itemprop="datePublished">2023-01-27</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/tools-%E7%88%AC%E8%99%AB/">tools - 爬虫</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/python/" rel="tag">python</a>, <a class="article-tag-link-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>, <a class="article-tag-link-link" href="/tags/%E7%89%9B%E5%AE%A2%E7%BD%91/" rel="tag">牛客网</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/f06a19b2ce94.html#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>爬取牛客网的帖子，获取一些感兴趣的信息，比如职位内推等。<br>为获得每日最新数据，系统使用增量更新，老数据保存到mysql数据库中用于去重，使用NLP分类模型进行内容筛选，过滤掉无关内容，每日新增的数据发邮件提醒，使用crontab定时任务每天自动运行，邮件效果如下图所示:</p>
+<p><img src="https://img-blog.csdnimg.cn/dc63410d0da4456e836c9a4ccfcd338e.png" alt="邮件截图"></p>
+<h2 id="MySQL数据表结构如下"><a href="#MySQL数据表结构如下" class="headerlink" title="MySQL数据表结构如下"></a>MySQL数据表结构如下</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> `newcoder_search`(</span><br><span class="line">   `id` <span class="type">BIGINT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   `title` <span class="type">VARCHAR</span>(<span class="number">40</span>),</span><br><span class="line">   `content` text <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   `<span class="keyword">user</span>` <span class="type">VARCHAR</span>(<span class="number">40</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   `url` <span class="type">VARCHAR</span>(<span class="number">60</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   `created_time` datetime <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   `edited_time` datetime <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">   <span class="keyword">PRIMARY</span> KEY ( `id` )</span><br><span class="line">)ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4;</span><br></pre></td></tr></table></figure>
+
+<h2 id="python爬虫"><a href="#python爬虫" class="headerlink" title="python爬虫"></a>python爬虫</h2><p>爬取并解析数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_parse_newcoder_page</span>(<span class="params">data, skip_words, start_date</span>):</span><br><span class="line">    <span class="keyword">assert</span> data[<span class="string">&#x27;success&#x27;</span>] == <span class="literal">True</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">&quot;|&quot;</span>.join(skip_words)) </span><br><span class="line">    res = []</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> data[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;records&#x27;</span>]:</span><br><span class="line">        x = x[<span class="string">&#x27;data&#x27;</span>]</span><br><span class="line">        dic = &#123;<span class="string">&quot;user&quot;</span>: x[<span class="string">&#x27;userBrief&#x27;</span>][<span class="string">&#x27;nickname&#x27;</span>]&#125;</span><br><span class="line">        </span><br><span class="line">        x = x[<span class="string">&#x27;contentData&#x27;</span>] <span class="keyword">if</span> <span class="string">&#x27;contentData&#x27;</span> <span class="keyword">in</span> x <span class="keyword">else</span> x[<span class="string">&#x27;momentData&#x27;</span>]</span><br><span class="line">        dic[<span class="string">&#x27;title&#x27;</span>] = x[<span class="string">&#x27;title&#x27;</span>]</span><br><span class="line">        dic[<span class="string">&#x27;content&#x27;</span>] = x[<span class="string">&#x27;content&#x27;</span>]</span><br><span class="line">        dic[<span class="string">&#x27;id&#x27;</span>] = <span class="built_in">int</span>(x[<span class="string">&#x27;id&#x27;</span>])</span><br><span class="line">        dic[<span class="string">&#x27;url&#x27;</span>] = <span class="string">&#x27;https://www.nowcoder.com/discuss/&#x27;</span> + <span class="built_in">str</span>(x[<span class="string">&#x27;id&#x27;</span>])</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(skip_words) &gt; <span class="number">0</span> <span class="keyword">and</span> pattern.search(x[<span class="string">&#x27;title&#x27;</span>] + x[<span class="string">&#x27;content&#x27;</span>]) != <span class="literal">None</span>:  <span class="comment">#关键词正则过滤</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">  </span><br><span class="line">        createdTime = x[<span class="string">&#x27;createdAt&#x27;</span>] <span class="keyword">if</span> <span class="string">&#x27;createdAt&#x27;</span> <span class="keyword">in</span> x <span class="keyword">else</span> x[<span class="string">&#x27;createTime&#x27;</span>]</span><br><span class="line">        dic[<span class="string">&#x27;createTime&#x27;</span>] = time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>, time.localtime(createdTime // <span class="number">1000</span>))</span><br><span class="line">        dic[<span class="string">&#x27;editTime&#x27;</span>] = time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>, time.localtime(x[<span class="string">&#x27;editTime&#x27;</span>] // <span class="number">1000</span>))</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> dic[<span class="string">&#x27;editTime&#x27;</span>] &lt; start_date: <span class="comment"># 根据时间过滤</span></span><br><span class="line">            <span class="keyword">continue</span>  </span><br><span class="line">        res.append(dic)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_newcoder_page</span>(<span class="params">page = <span class="number">1</span>, keyword = <span class="string">&quot;校招&quot;</span>, skip_words = [], start_date = <span class="string">&#x27;2023&#x27;</span></span>):</span><br><span class="line">    header = &#123;</span><br><span class="line">        <span class="string">&quot;user-agent&quot;</span>:<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36&quot;</span>,</span><br><span class="line">        <span class="string">&quot;content-type&quot;</span>:<span class="string">&quot;application/json&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;all&quot;</span>, </span><br><span class="line">        <span class="string">&quot;query&quot;</span>: keyword, </span><br><span class="line">        <span class="string">&quot;page&quot;</span>: page, </span><br><span class="line">        <span class="string">&quot;tag&quot;</span>: [], </span><br><span class="line">        <span class="string">&quot;order&quot;</span>: <span class="string">&quot;create&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    x = requests.post(<span class="string">&#x27;https://gw-c.nowcoder.com/api/sparta/pc/search&#x27;</span>, data = json.dumps(data), headers = header, )</span><br><span class="line">    data =  _parse_newcoder_page(x.json(), skip_words, start_date)</span><br><span class="line">    <span class="keyword">return</span> data</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="数据落库去重"><a href="#数据落库去重" class="headerlink" title="数据落库去重"></a>数据落库去重</h2><p>将数据存入数据库，根据id去重，如果id不存在则insert，如果id已存在但editTime 有变化则update， 否则是重复的过滤掉</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upsert_to_db</span>(<span class="params">data, host, user, passwd, database,charset, port</span>):</span><br><span class="line">    db = pymysql.connect(</span><br><span class="line">          host=host,</span><br><span class="line">          user=user,</span><br><span class="line">          passwd=passwd,</span><br><span class="line">          database = database,</span><br><span class="line">          charset=charset,</span><br><span class="line">          port = port</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        cursor = db.cursor()  </span><br><span class="line">        sql = <span class="string">&quot;select id, edited_time from newcoder_search where id in (&#123;&#125;)&quot;</span>.<span class="built_in">format</span>(<span class="string">&quot;,&quot;</span>.join([<span class="built_in">str</span>(x[<span class="string">&#x27;id&#x27;</span>]) <span class="keyword">for</span> x <span class="keyword">in</span> data]))</span><br><span class="line">        cursor.execute(sql)</span><br><span class="line">        exists = cursor.fetchall()</span><br><span class="line">        dic = &#123;x[<span class="number">0</span>] : x[<span class="number">1</span>].strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>) <span class="keyword">for</span> x <span class="keyword">in</span> exists&#125;</span><br><span class="line"></span><br><span class="line">        insert_data = [[x[k] <span class="keyword">for</span> k <span class="keyword">in</span> x] <span class="keyword">for</span> x <span class="keyword">in</span> data <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">not</span> <span class="keyword">in</span> dic]</span><br><span class="line">        update_data = [(x[<span class="string">&#x27;editTime&#x27;</span>], x[<span class="string">&#x27;id&#x27;</span>]) <span class="keyword">for</span> x <span class="keyword">in</span> data <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">in</span> dic <span class="keyword">and</span> dic[x[<span class="string">&#x27;id&#x27;</span>]] != x[<span class="string">&#x27;editTime&#x27;</span>]]</span><br><span class="line">        sql = <span class="string">&quot;INSERT INTO newcoder_search (user, title, content, id, url, created_time, edited_time) VALUES(%s, %s, %s, %s, %s, %s, %s)&quot;</span></span><br><span class="line">        cursor.executemany(sql, insert_data)</span><br><span class="line">        sql = <span class="string">&quot;update newcoder_search set edited_time = %s where id = %s&quot;</span></span><br><span class="line">        cursor.executemany(sql, update_data)</span><br><span class="line">        db.commit()</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;db error: &quot;</span>, e)</span><br><span class="line">    db.close()</span><br><span class="line">    <span class="keyword">return</span> [x <span class="keyword">for</span> x <span class="keyword">in</span> data <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">not</span> <span class="keyword">in</span> dic], [x <span class="keyword">for</span> x <span class="keyword">in</span> data <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">in</span> dic <span class="keyword">and</span> dic[x[<span class="string">&#x27;id&#x27;</span>]] != x[<span class="string">&#x27;editTime&#x27;</span>]]</span><br></pre></td></tr></table></figure>
+
+<h2 id="邮件发送"><a href="#邮件发送" class="headerlink" title="邮件发送"></a>邮件发送</h2><p>将新创建的帖子与原有的但更改过的帖子区分开发送</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> smtplib</span><br><span class="line"><span class="keyword">from</span> email.mime.text <span class="keyword">import</span> MIMEText</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_table_html_generate</span>(<span class="params">data</span>):</span><br><span class="line">    s = <span class="string">&#x27;&lt;table&gt;&#x27;</span></span><br><span class="line">    s += <span class="string">&#x27;&lt;tr&gt;&#x27;</span> + <span class="string">&quot;\n&quot;</span>.join([<span class="string">&quot;&lt;th&gt;&quot;</span> + x + <span class="string">&#x27;&lt;/th&gt;&#x27;</span> <span class="keyword">for</span> x <span class="keyword">in</span> data[<span class="number">0</span>]]) + <span class="string">&#x27;&lt;/tr&gt;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> d <span class="keyword">in</span> data:</span><br><span class="line">        s += <span class="string">&#x27;&lt;tr&gt;&#x27;</span> + <span class="string">&quot;\n&quot;</span>.join([<span class="string">&quot;&lt;td&gt;&quot;</span> + <span class="built_in">str</span>(d[x]) + <span class="string">&#x27;&lt;/td&gt;&#x27;</span> <span class="keyword">for</span> x <span class="keyword">in</span> d]) + <span class="string">&#x27;&lt;/tr&gt;&#x27;</span></span><br><span class="line">    s += <span class="string">&#x27;&lt;/table&gt;&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_email</span>(<span class="params">insert_data, update_data, mail_host, mail_user, mail_pass, sender, receivers</span>):</span><br><span class="line">    msg = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(insert_data) &gt; <span class="number">0</span>:</span><br><span class="line">        msg += <span class="string">&#x27;&lt;h1&gt;insert&lt;/h1&gt;&lt;/br&gt;&#x27;</span> + _table_html_generate(insert_data) + <span class="string">&#x27;&lt;/br&gt;&lt;/br&gt;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(update_data) &gt; <span class="number">0</span>:</span><br><span class="line">        msg += <span class="string">&#x27;&lt;h1&gt;update&lt;/h1&gt;&lt;/br&gt;&#x27;</span> + _table_html_generate(update_data) + <span class="string">&#x27;&lt;/br&gt;&lt;/br&gt;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> msg == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&#x27;&lt;h1&gt;今日无新增数据&lt;/h1&gt;&lt;/br&gt;&#x27;</span></span><br><span class="line">        </span><br><span class="line">    message = MIMEText(msg, <span class="string">&#x27;html&#x27;</span>, <span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    message[<span class="string">&#x27;Subject&#x27;</span>] = <span class="string">&#x27;牛客网&#123;&#125;招聘信息&#x27;</span>.<span class="built_in">format</span>(time.strftime(<span class="string">&quot;%Y-%m-%d&quot;</span>))</span><br><span class="line">    message[<span class="string">&#x27;From&#x27;</span>] = sender</span><br><span class="line">    message[<span class="string">&#x27;To&#x27;</span>] = receivers[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        smtpObj = smtplib.SMTP_SSL(mail_host, <span class="number">465</span>)</span><br><span class="line">        <span class="comment">#smtpObj.connect(mail_host, 465)</span></span><br><span class="line">        smtpObj.login(mail_user, mail_pass)</span><br><span class="line">        smtpObj.sendmail(</span><br><span class="line">            sender, receivers, message.as_string())</span><br><span class="line">        smtpObj.quit()</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">except</span> smtplib.SMTPException <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;email send error: &#x27;</span>, e)  </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span>    </span><br></pre></td></tr></table></figure>
+
+<h2 id="集成控制"><a href="#集成控制" class="headerlink" title="集成控制"></a>集成控制</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">keywords, skip_words, db_config, mail_config = <span class="literal">None</span></span>):</span><br><span class="line">    res = []</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> keywords:</span><br><span class="line">        <span class="built_in">print</span>(key, time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">11</span>):</span><br><span class="line">            <span class="built_in">print</span>(i)</span><br><span class="line">            page = get_newcoder_page(i, key, skip_words)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> page: </span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            res.extend(page)</span><br><span class="line">            time.sleep(<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    result, ids = [], <span class="built_in">set</span>()  <span class="comment"># 去重</span></span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> res:</span><br><span class="line">        <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">in</span> ids: <span class="keyword">continue</span></span><br><span class="line">        ids.add(x[<span class="string">&#x27;id&#x27;</span>])</span><br><span class="line">        result.append(x)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;total num: &quot;</span>, <span class="built_in">len</span>(result))</span><br><span class="line">    x = upsert_to_db(result, **db_config)  <span class="comment"># insert_data, update_data</span></span><br><span class="line">    <span class="keyword">if</span> mail_config:</span><br><span class="line">        send_email(*x, **mail_config)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>(): </span><br><span class="line">    <span class="comment"># 指定要过滤的词</span></span><br><span class="line">    skip_words=[<span class="string">&#x27;求捞&#x27;</span>, <span class="string">&#x27;泡池子&#x27;</span>, <span class="string">&#x27;池子了&#x27;</span>, <span class="string">&#x27;池子中&#x27;</span>, <span class="string">&#x27;offer对比&#x27;</span>, <span class="string">&#x27;总结一下&#x27;</span>, <span class="string">&#x27;给个建议&#x27;</span>, <span class="string">&#x27;开奖群&#x27;</span>, <span class="string">&#x27;没消息&#x27;</span>, <span class="string">&#x27;有消息&#x27;</span>, <span class="string">&#x27;拉垮&#x27;</span>, <span class="string">&#x27;求一个&#x27;</span>, <span class="string">&#x27;求助&#x27;</span>, <span class="string">&#x27;池子的&#x27;</span>, <span class="string">&#x27;决赛圈&#x27;</span>, <span class="string">&#x27;offer比较&#x27;</span>, <span class="string">&#x27;求捞&#x27;</span>, <span class="string">&#x27;补录面经&#x27;</span>, <span class="string">&#x27;捞捞&#x27;</span>, <span class="string">&#x27;收了我吧&#x27;</span>, <span class="string">&#x27;offer选择&#x27;</span>, <span class="string">&#x27;有offer了&#x27;</span>, <span class="string">&#x27;想问一下&#x27;</span>, <span class="string">&#x27;kpi吗&#x27;</span>, <span class="string">&#x27;kpi面吗&#x27;</span>, <span class="string">&#x27;kpi面吧&#x27;</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 指定搜索的关键词</span></span><br><span class="line">    keywords = [<span class="string">&#x27;补招&#x27;</span>, <span class="string">&#x27;补录&#x27;</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#配置数据库信息</span></span><br><span class="line">    db_config = &#123;</span><br><span class="line">        <span class="string">&quot;host&quot;</span> : <span class="string">&quot;localhost&quot;</span>, </span><br><span class="line">        <span class="string">&quot;user&quot;</span> : <span class="string">&quot;root&quot;</span>, </span><br><span class="line">        <span class="string">&quot;passwd&quot;</span> : <span class="string">&quot;your password&quot;</span>, </span><br><span class="line">        <span class="string">&quot;database&quot;</span> : <span class="string">&#x27;your database&#x27;</span>,</span><br><span class="line">        <span class="string">&quot;charset&quot;</span> : <span class="string">&#x27;utf8&#x27;</span>, </span><br><span class="line">        <span class="string">&quot;port&quot;</span>: your mysql port</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 配置邮箱信息</span></span><br><span class="line">    mail_config = &#123;</span><br><span class="line">        <span class="string">&quot;mail_host&quot;</span> : <span class="string">&#x27;smtp server host&#x27;</span>, </span><br><span class="line">        <span class="string">&quot;mail_user&quot;</span> : <span class="string">&#x27;your user name&#x27;</span>, </span><br><span class="line">        <span class="string">&quot;mail_pass&quot;</span> : <span class="string">&#x27;password&#x27;</span>,   <span class="comment"># 密码(部分邮箱为授权码)</span></span><br><span class="line">        <span class="string">&quot;sender&quot;</span> : <span class="string">&#x27;sender email&#x27;</span>, </span><br><span class="line">        <span class="string">&quot;receivers&quot;</span> : [<span class="string">&quot;receivers email&quot;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    run(keywords, skip_words, db_config, mail_config)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="内容筛选"><a href="#内容筛选" class="headerlink" title="内容筛选"></a>内容筛选</h2><p>直接爬下来的帖子既包含招聘信息，又包含求职者发布的面经、讨论贴等其他内容，现在希望过滤掉那些无关的帖子。<br>第一版只写了一个根据关键词和正则表达式进行过滤的功能，用户指定<code>skip_words</code>，凡包含这里面的关键词的都会被过滤。过滤方法如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">skip_words = [<span class="string">&#x27;求捞&#x27;</span>, <span class="string">&#x27;泡池子&#x27;</span>, <span class="string">&#x27;兄弟们&#x27;</span>, <span class="string">&#x27;姐妹们&#x27;</span>, <span class="string">&#x27;家人们&#x27;</span>, <span class="string">&#x27;狗都\\w&#123;0,2&#125;去&#x27;</span>, <span class="string">&#x27;有推荐\\w&#123;0,5&#125;吗&#x27;</span>, <span class="string">&#x27;选offer&#x27;</span>, <span class="string">&#x27;交流一下&#x27;</span>, <span class="string">&#x27;该怎么办&#x27;</span>, <span class="string">&#x27;坐立不安&#x27;</span>, <span class="string">&#x27;辗转难眠&#x27;</span>, <span class="string">&#x27;哈哈哈&#x27;</span>, <span class="string">&#x27;求支招&#x27;</span>, <span class="string">&#x27;求经验&#x27;</span>, <span class="string">&#x27;抱大腿&#x27;</span>, <span class="string">&#x27;有没有\\w&#123;0,3&#125;懂&#x27;</span>, <span class="string">&#x27;诈骗&#x27;</span>, <span class="string">&#x27;毁约&#x27;</span>, <span class="string">&#x27;秋招历程&#x27;</span>, <span class="string">&#x27;求\\w&#123;0,5&#125;建议&#x27;</span>, <span class="string">&#x27;二战&#x27;</span>, <span class="string">&#x27;感觉有点悬&#x27;</span>, <span class="string">&#x27;写给\\w&#123;0,10&#125;同学&#x27;</span>, <span class="string">&#x27;好心人&#x27;</span>, <span class="string">&#x27;一脸懵逼&#x27;</span>, <span class="string">&#x27;纠结&#x27;</span>, <span class="string">&#x27;有推荐\\w&#123;0,1&#125;的&#x27;</span>, <span class="string">&#x27;如何准备&#x27;</span>, <span class="string">&#x27;帮\\w&#123;0,1&#125;选一下&#x27;</span>, <span class="string">&#x27;考研\\w&#123;0,2&#125;失败&#x27;</span>, <span class="string">&#x27;求指导&#x27;</span>, <span class="string">&#x27;开始了吗&#x27;</span>, <span class="string">&#x27;秋招总结&#x27;</span>, <span class="string">&#x27;校招总结&#x27;</span>, <span class="string">&#x27;还有机会吗&#x27;</span>, <span class="string">&#x27;池子了&#x27;</span>, <span class="string">&#x27;池子中&#x27;</span>, <span class="string">&#x27;offer对比&#x27;</span>, <span class="string">&#x27;开奖群&#x27;</span>, <span class="string">&#x27;拉垮&#x27;</span>, <span class="string">&#x27;求一个&#x27;</span>, <span class="string">&#x27;求助&#x27;</span>, <span class="string">&#x27;池子的&#x27;</span>, <span class="string">&#x27;决赛圈&#x27;</span>, <span class="string">&#x27;offer比较&#x27;</span>, <span class="string">&#x27;迷茫的人&#x27;</span>, <span class="string">&#x27;年度总结&#x27;</span>, <span class="string">&#x27;有没有友友&#x27;</span>, <span class="string">&#x27;救救孩子&#x27;</span>, <span class="string">&#x27;骂醒&#x27;</span>, <span class="string">&#x27;问\\w&#123;0,2&#125;大佬&#x27;</span>, <span class="string">&#x27;一般\\w&#123;0,4&#125;怎么找&#x27;</span>, <span class="string">&#x27;考研人&#x27;</span>, <span class="string">&#x27;求指导&#x27;</span>, <span class="string">&#x27;求捞&#x27;</span>, <span class="string">&#x27;补录面经&#x27;</span>, <span class="string">&#x27;捞捞&#x27;</span>, <span class="string">&#x27;收了我吧&#x27;</span>, <span class="string">&#x27;offer选择&#x27;</span>, <span class="string">&#x27;想问一下&#x27;</span>, <span class="string">&#x27;kpi\\w&#123;0,1&#125;吗&#x27;</span>, <span class="string">&#x27;kpi\\w&#123;0,1&#125;吧&#x27;</span>]</span><br><span class="line">s = <span class="string">&quot;大佬们可以帮我看一下简历吗。 想参加春招，可以帮忙看一下简历吗 #如何看待2023届秋招# #简历# #春招提前批#...北京某末流211工商管理大类专业，没什么特别突出的经历，学校没有参加过大赛，&quot;</span></span><br><span class="line"></span><br><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">&quot;|&quot;</span>.join(skip_words)) </span><br><span class="line"><span class="keyword">if</span> pattern.search(s) != <span class="literal">None</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;filter out this data&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>但这种方法也不是很准，还是会有漏网之鱼，怎么才能实现更精准的过滤呢？<br>一种可能的方案是训练一个NLP分类模型进行过滤，但这需要大量数据进行训练，目前我已爬取牛客网上历史数据4万多条，但需要标注数据，不太想人工去标数据，这个计划暂时搁置，代码和历史数据已开源在<a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler">github  newcoder-crawler</a><br>**[更新]**：最后还是忍不住想玩一下，花了一周时间，训练了一个帖子分类模型进行过滤，详细构建过程见<a href="https://chadqiu.github.io/ed5507eb2665.html">如何从零开始构建一个网络讨论帖分类模型？</a>，模型地址:<a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler/blob/main/roberta4h512.zip">roberta4h512.zip</a>.<br>下载下来后解压，将roberta4h512文件夹放到与爬虫脚本同级目录下，模型推理的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_batch_generate</span>(<span class="params">texts, model, tokenizer, id2label = &#123;<span class="number">0</span>: <span class="string">&#x27;招聘信息&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;经验贴&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;求助贴&#x27;</span>&#125;, max_length = <span class="number">128</span></span>):</span><br><span class="line">    inputs = tokenizer( texts, return_tensors=<span class="string">&quot;pt&quot;</span>, max_length=<span class="number">128</span>, padding=<span class="literal">True</span>, truncation=<span class="literal">True</span>)</span><br><span class="line">    outputs = model(**inputs).logits.argmax(-<span class="number">1</span>).tolist()</span><br><span class="line">    <span class="keyword">return</span> [id2label[x] <span class="keyword">for</span> x <span class="keyword">in</span> outputs]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_predict</span>(<span class="params">text_list, model = <span class="literal">None</span>, tokenizer = <span class="literal">None</span>, model_name = <span class="string">&quot;roberta4h512&quot;</span>, batch_size = <span class="number">4</span></span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text_list: <span class="keyword">return</span> []</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> model:</span><br><span class="line">        model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> tokenizer:</span><br><span class="line">        tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    result, start = [], <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span>(start &lt; <span class="built_in">len</span>(text_list)):</span><br><span class="line">        result.extend(_batch_generate(text_list[start : start + batch_size], model, tokenizer))</span><br><span class="line">        start += batch_size</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后，稍微改一下run函数，加入模型过滤的逻辑即可，另外还有一些人会把一个信息重复发布多份，这里加入一个根据内容进行去重的逻辑，修改后的run函数如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">def filter(data, unique_content, model = None, tokenizer = None):</span><br><span class="line">    # 模型过滤，根据页面内容去重</span><br><span class="line">    labels = model_predict([(str(x[&#x27;title&#x27;]) if x[&#x27;title&#x27;] else &quot;&quot; ) + &quot;\t&quot; +</span><br><span class="line">                            (str(x[&#x27;content&#x27;]) if x[&#x27;content&#x27;] else &quot;&quot; ) for x in data], model, tokenizer)</span><br><span class="line">    result = []</span><br><span class="line">    for i, x in enumerate(data):</span><br><span class="line">        if x[&#x27;content&#x27;] in unique_content or labels[i] != &quot;招聘信息&quot;: </span><br><span class="line">            continue</span><br><span class="line">        unique_content.add(x[&#x27;content&#x27;])</span><br><span class="line">        result.append(x)</span><br><span class="line">    return result</span><br><span class="line">    </span><br><span class="line">def run(keywords, skip_words, db_config, mail_config = None):</span><br><span class="line">    res = []</span><br><span class="line">    for key in keywords:</span><br><span class="line">        print(key, time.strftime(&quot;%Y-%m-%d %H:%M:%S&quot;))</span><br><span class="line">        for i in range(1, 21):</span><br><span class="line">            print(i)</span><br><span class="line">            page = get_newcoder_page(i, key, skip_words, </span><br><span class="line">                                    start_date = time.strftime(&quot;%Y-%m-%d&quot;, time.localtime(time.time() - 15 * 24 * 60 * 60)))</span><br><span class="line">            if not page: </span><br><span class="line">                break</span><br><span class="line">            res.extend(page)</span><br><span class="line">            time.sleep(1)</span><br><span class="line">            </span><br><span class="line">    res.sort(key = lambda x: len(x[&#x27;content&#x27;]))</span><br><span class="line">    result, ids = [], set()  # 根据id去重</span><br><span class="line">    for x in res:</span><br><span class="line">        if x[&#x27;id&#x27;] in ids: </span><br><span class="line">            continue</span><br><span class="line">        ids.add(x[&#x27;id&#x27;])</span><br><span class="line">        result.append(x)</span><br><span class="line">        </span><br><span class="line">    print(&quot;total num: &quot;, len(result))</span><br><span class="line">    #print(result)</span><br><span class="line">    insert_data, update_data = upsert_to_db(result, **db_config)  </span><br><span class="line">    </span><br><span class="line">    if mail_config:</span><br><span class="line">        unique_content, shared_model, shared_tokenizer = set(), None, None</span><br><span class="line">        insert_data = filter(insert_data, unique_content, shared_model, shared_tokenizer)</span><br><span class="line">        update_data = filter(update_data, unique_content, shared_model, shared_tokenizer)</span><br><span class="line">        send_email(insert_data, update_data, **mail_config)</span><br><span class="line">        </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="编写shell脚本，使用crontab自动运行"><a href="#编写shell脚本，使用crontab自动运行" class="headerlink" title="编写shell脚本，使用crontab自动运行"></a>编写shell脚本，使用crontab自动运行</h2><p>代码希望每天运行一次， 如果每次都手动运行的话，使用体验就很不好了，最好是放在服务器中，弄个croontab定时任务，每天自动运行一次。把启动的命令写成shell脚本如下：<br>shell脚本newcoder.sh内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">source /root/anaconda3/bin/activate base</span><br><span class="line">cd /root/chadqiu/crawler</span><br><span class="line">python newcoder.py &gt; server.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<h2 id="crontab配置"><a href="#crontab配置" class="headerlink" title="crontab配置"></a>crontab配置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">crontab -l  # 查看已经存在的定时任务</span><br><span class="line">crontab -e  #编辑/新加定时任务</span><br><span class="line">service crond restart  #重启，是刚才的配置更改生效</span><br></pre></td></tr></table></figure>
+
+<p>这里crontab -e新加配置内容如下，每天18：30运行一次：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">30 18 * * * bash /root/chadqiu/crawler/newcoder.sh</span><br></pre></td></tr></table></figure>
+
+<p><strong>cron配置语法规则</strong>：<br>5个位置含义如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> Minute Hour Day  Month    Dayofweek   command</span><br><span class="line">分钟     小时   天     月       天每星期       命令</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">“*”代表取值范围内的数字,</span><br><span class="line">“/”代表”每”,</span><br><span class="line">“-”代表从某个数字到某个数字,</span><br><span class="line">“,”分开几个离散的数字</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nacos配置中心"><a href="#Nacos配置中心" class="headerlink" title="Nacos配置中心"></a>Nacos配置中心</h2><p>刚才的<code>main</code>函数里有很多配置需要写，特别是过滤词、接收邮箱列表等可能会经常改变，每改一次就得重新改代码非常麻烦，因此引入了Nacos注册中心，将<code>keywords, skip_words, db_config, mail_config</code>这四个配置变量放在Nacos中，这样就可以动态修改了，在Nacos中配置为json格式，如下图所示<br><img src="/images/nacos_params.png" alt="Nacos添加的参数截图"><br><img src="/images/nacos_newcoder_keyword.png" alt="Nacos关键词配置截图"><br><img src="/images/nacos_mail_config.png" alt="Nacos邮箱配置截图"></p>
+<p>代码稍作修改，加入一个<code>get_config</code>函数，并修改一下<code>main</code>函数，修改的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> nacos</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_config</span>(<span class="params">SERVER_ADDRESSES, NAMESPACE, GROUP</span>):</span><br><span class="line">    <span class="built_in">print</span>(SERVER_ADDRESSES, NAMESPACE)</span><br><span class="line">    client = nacos.NacosClient(SERVER_ADDRESSES, namespace=NAMESPACE)</span><br><span class="line"></span><br><span class="line">    keywords = json.loads(client.get_config(<span class="string">&quot;newcoder.crawler.keywords&quot;</span>, GROUP))</span><br><span class="line">    skip_words = json.loads(client.get_config(<span class="string">&quot;newcoder.crawler.skip_words&quot;</span>, GROUP))</span><br><span class="line">    db_config = json.loads(client.get_config(<span class="string">&quot;newcoder.crawler.db_config&quot;</span>, GROUP))</span><br><span class="line">    mail_config= json.loads(client.get_config(<span class="string">&quot;newcoder.crawler.mail_config&quot;</span>, GROUP))</span><br><span class="line">    <span class="keyword">return</span> keywords, skip_words, db_config, mail_config</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    SERVER_ADDRESSES = <span class="string">&quot;ip:port&quot;</span></span><br><span class="line">    NAMESPACE = <span class="string">&quot;your namespace&quot;</span></span><br><span class="line">    GROUP= <span class="string">&quot;your group&quot;</span></span><br><span class="line">    </span><br><span class="line">    run(*get_config(SERVER_ADDRESSES, NAMESPACE, GROUP))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>将上面两份代码整合后的完整代码见 <a target="_blank" rel="noopener" href="https://github.com/chadqiu/newcoder-crawler/blob/main/crawler_advanced.py">github</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://chadqiu.github.io/f06a19b2ce94.html" title="牛客网爬虫" target="_blank" rel="external">http://chadqiu.github.io/f06a19b2ce94.html</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/chadqiu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/logo.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/chadqiu" target="_blank"><span class="text-dark">chadqiu</span><small class="ml-1x">Developer &amp; Researcher</small></a></h3>
+        <div>在校程序猿</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81Nzk4OC8zNDQ1MQ==">
+        <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+      </div>    
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/083653212f47.html" title="谷歌学术爬虫"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/395c25595e33.html" title="爬虫入门"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/chadqiu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+<script defer type="text/javascript">
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+
+    if (typeof LivereTower === 'function') { return; }
+
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>
